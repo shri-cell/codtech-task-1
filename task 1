@@ -1,0 +1,346 @@
+/*index.html*/
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Quiz</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="homepage">
+        <h1>Welcome to the Interactive Quiz</h1>
+        <form id="quiz-settings">
+            <div>
+                <label for="num-questions">Number of Questions:</label>
+                <select id="num-questions">
+                    <option value="3">3</option>
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                </select>
+            </div>
+            <div>
+                <label for="difficulty">Difficulty Level:</label>
+                <select id="difficulty">
+                    <option value="easy">Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard">Hard</option>
+                </select>
+            </div>
+            <div>
+                <label for="time-per-question">Time per Question (seconds):</label>
+                <input type="number" id="time-per-question" value="30">
+            </div>
+            <button type="button" id="start-quiz-btn" class="btn start-btn">Start Quiz</button>
+        </form>
+        <div id="about-us">
+            <h2>About Us</h2>
+            <p>Welcome to our interactive quiz platform! We aim to provide an engaging and educational experience for all quiz enthusiasts. Whether you're looking to challenge yourself or learn something new, our quizzes are designed to be both fun and informative. Enjoy!</p>
+        </div>
+        
+    </div>
+
+    <div id="quiz-container" class="quiz-box hidden">
+        <div id="question-container">
+            <p id="question"></p>
+            <div id="answer-buttons" class="btn-container"></div>
+        </div>
+        <div id="navigation-buttons">
+            <button id="next-btn" class="btn hidden">Next</button>
+            <button id="end-quiz-btn" class="btn hidden">End Quiz</button>
+        </div>
+    </div>
+
+    <div id="results-container" class="quiz-box hidden">
+        <h2>Your Results</h2>
+        <p id="score"></p>
+        <button id="restart-btn" class="btn restart-btn">Restart Quiz</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
+
+/* script.js*/
+document.getElementById('start-quiz-btn').addEventListener('click', startQuiz);
+document.getElementById('next-btn').addEventListener('click', () => {
+    currentQuestionIndex++;
+    setNextQuestion();
+});
+document.getElementById('end-quiz-btn').addEventListener('click', showResults);
+document.getElementById('restart-btn').addEventListener('click', restartQuiz);
+
+const questions = [
+    {
+        question: "What is the capital of France?",
+        answers: [
+            { text: "Berlin", correct: false },
+            { text: "Madrid", correct: false },
+            { text: "Paris", correct: true },
+            { text: "Lisbon", correct: false }
+        ]
+    },
+    {
+        question: "Which planet is known as the Red Planet?",
+        answers: [
+            { text: "Earth", correct: false },
+            { text: "Mars", correct: true },
+            { text: "Jupiter", correct: false },
+            { text: "Saturn", correct: false }
+        ]
+    },
+    {
+        question: "Who wrote 'To Kill a Mockingbird'?",
+        answers: [
+            { text: "Harper Lee", correct: true },
+            { text: "Mark Twain", correct: false },
+            { text: "F. Scott Fitzgerald", correct: false },
+            { text: "Ernest Hemingway", correct: false }
+        ]
+    }
+];
+
+let currentQuestionIndex, score, quizQuestions, timePerQuestion;
+
+function startQuiz() {
+    const numQuestions = document.getElementById('num-questions').value;
+    const difficulty = document.getElementById('difficulty').value;
+    timePerQuestion = document.getElementById('time-per-question').value;
+
+    // Filtering logic based on difficulty can be added here
+    quizQuestions = questions.slice(0, numQuestions);
+
+    currentQuestionIndex = 0;
+    score = 0;
+    document.getElementById('homepage').classList.add('hidden');
+    document.getElementById('quiz-container').classList.remove('hidden');
+    setNextQuestion();
+}
+
+function setNextQuestion() {
+    resetState();
+    showQuestion(quizQuestions[currentQuestionIndex]);
+}
+
+function showQuestion(question) {
+    document.getElementById('question').innerText = question.question;
+    question.answers.forEach(answer => {
+        const button = document.createElement('button');
+        button.innerText = answer.text;
+        button.classList.add('btn', 'answer-btn');
+        if (answer.correct) {
+            button.dataset.correct = answer.correct;
+        }
+        button.addEventListener('click', selectAnswer);
+        document.getElementById('answer-buttons').appendChild(button);
+    });
+}
+
+function resetState() {
+    document.getElementById('next-btn').classList.add('hidden');
+    document.getElementById('end-quiz-btn').classList.add('hidden');
+    while (document.getElementById('answer-buttons').firstChild) {
+        document.getElementById('answer-buttons').removeChild(document.getElementById('answer-buttons').firstChild);
+    }
+}
+
+function selectAnswer(e) {
+    const selectedButton = e.target;
+    const correct = selectedButton.dataset.correct === 'true';
+    if (correct) {
+        score++;
+    }
+    Array.from(document.getElementById('answer-buttons').children).forEach(button => {
+        setStatusClass(button, button.dataset.correct === 'true');
+    });
+    if (currentQuestionIndex < quizQuestions.length - 1) {
+        document.getElementById('next-btn').classList.remove('hidden');
+    } else {
+        document.getElementById('end-quiz-btn').classList.remove('hidden');
+    }
+}
+
+function setStatusClass(element, correct) {
+    if (correct) {
+        element.classList.add('correct');
+    } else {
+        element.classList.add('wrong');
+    }
+}
+
+function showResults() {
+    document.getElementById('quiz-container').classList.add('hidden');
+    document.getElementById('results-container').classList.remove('hidden');
+    document.getElementById('score').innerText = `You scored ${score} out of ${quizQuestions.length}!`;
+}
+
+function restartQuiz() {
+    document.getElementById('results-container').classList.add('hidden');
+    document.getElementById('homepage').classList.remove('hidden');
+}
+
+/* styles.css*/
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: #E6E6FA; /* Lavender background */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    color: #333;
+}
+
+#homepage {
+    background: #fff;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    width: 80%;
+    max-width: 600px;
+    margin-bottom: 20px;
+}
+
+h1 {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: #4B0082; /* Dark lavender color for headings */
+}
+
+h2 {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    color: #4B0082; /* Dark lavender color for subheadings */
+}
+
+form div, #about-us {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #4B0082; /* Dark lavender color for labels */
+}
+
+select, input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.btn {
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    margin: 5px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.start-btn {
+    background-color: #9370DB; /* Medium purple color for start button */
+}
+
+.start-btn:hover {
+    background-color: #6A5ACD; /* Slightly darker purple for hover effect */
+}
+
+.social-icons {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.social-icons a {
+    margin: 0 10px;
+}
+
+.social-icons img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+}
+
+.social-icons img:hover {
+    transform: scale(1.2);
+}
+
+.hidden {
+    display: none;
+}
+
+.quiz-box {
+    background: #fff;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    width: 80%;
+    max-width: 600px;
+}
+
+.btn-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.btn-container .btn {
+    background-color: #1E90FF; /* Blue color for answer buttons */
+    margin: 10px 0;
+}
+
+.btn-container .btn:hover {
+    background-color: #1C86EE; /* Slightly darker blue for hover effect */
+}
+
+#navigation-buttons {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+
+#navigation-buttons .btn {
+    background-color: #32CD32; /* Green color for next and end buttons */
+}
+
+#navigation-buttons .btn:hover {
+    background-color: #2E8B57; /* Slightly darker green for hover effect */
+}
+
+.restart-btn {
+    background-color: #FF4500; /* Orange color for restart button */
+}
+
+.restart-btn:hover {
+    background-color: #FF6347; /* Slightly darker orange for hover effect */
+}
+
+.correct {
+    background-color: #4CAF50 !important; /* Green for correct answers */
+}
+
+.wrong {
+    background-color: #F44336 !important; /* Red for wrong answers */
+}
+
+@media (max-width: 768px) {
+    .quiz-box {
+        width: 90%;
+    }
+}
+

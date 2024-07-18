@@ -20,5 +20,6 @@ Mentor:Neela santhosh kumar
   HTML
   CSS
   JavaScript
-
-
+![Screenshot 2024-07-18 124619](https://github.com/user-attachments/assets/25717c1d-8437-4d74-a108-9ba240a5afa6)
+![Screenshot 2024-07-18 124643](https://github.com/user-attachments/assets/9d89fb78-b22a-4a5c-b072-54755d5dba7b)
+![Screenshot 2024-07-18 124702](https://github.com/user-attachments/assets/af4970e6-8ef0-48c7-aecd-92a4a7ab1a2d)
